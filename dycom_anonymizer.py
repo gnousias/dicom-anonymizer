@@ -23,7 +23,7 @@ def anonymize_file(filepath, savepath, id_number):
     try:
         ds = pydicom.dcmread(filepath)
         ds.PatientName = ''
-        ds.PatientID = id_number
+        ds.PatientID = ''
         ds.PatientBirthDate = ''
         ds.SeriesDate = ''
         ds.StudyID = ''
@@ -88,4 +88,5 @@ if uploaded_file:
                 file_name="anonymized.zip",
                 mime="application/zip"
             )
+
 
