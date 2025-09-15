@@ -18,7 +18,7 @@ def is_dicom(filepath):
     except Exception:
         return False
 
-def anonymize_file(filepath, savepath, id_number="ANON"):
+def anonymize_file(filepath, savepath, id_number):
     """Anonymize a single DICOM file."""
     try:
         ds = pydicom.dcmread(filepath)
@@ -88,3 +88,4 @@ if uploaded_file:
                 file_name="anonymized.zip",
                 mime="application/zip"
             )
+
