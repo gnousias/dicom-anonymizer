@@ -8,11 +8,6 @@ from pydicom.errors import InvalidDicomError
 import streamlit as st
 
 # --- Helper Functions ---
-def get_id_from_filename(filename: str) -> str:
-    """Extract leading digits from filename (or folder name)."""
-    match = re.match(r'^(\d+)', filename)
-    return match.group(1) if match else " "
-
 def is_dicom(filepath):
     """Check if a file is a valid DICOM file."""
     try:
@@ -23,24 +18,8 @@ def is_dicom(filepath):
     except Exception:
         return False
 
-def anonymize_file(filepath, savepath):
+def anonymize_file(filepath, savepath, id_number="ANON"):
     """Anonymize a single DICOM file."""
-    try:
-        # Extract ID from filename
-        filename = os.path.basename(filepath)
-        id_number = get_id_from_filename(filename)
-        
-        ds = pydicom.dcmread(filepath)
-        ds.PatientName = ''
-        ds.PatientID = id_number
-        ds.PatientBirthDate = ''
-        ds.SeriesDate = ''
-        ds.StudyID = ''
-        ds.save_as(savepath)
-    except Exception as e:
-        st.error(f"Failed to anonymize {filepath}: {e}")
-
-def anonymize_file_with_id(filepath, savepath, id_number):
     try:
         ds = pydicom.dcmread(filepath)
         ds.PatientName = ''
@@ -59,17 +38,12 @@ def process_folder(input_folder, output_folder):
         rel_path = os.path.relpath(root, input_folder)
         out_dir = os.path.join(output_folder, rel_path)
         os.makedirs(out_dir, exist_ok=True)
-
-        # Extract ID from folder name
-        folder_name = os.path.basename(root)
-        id_number = get_id_from_filename(folder_name)
-
         for file in files:
             in_path = os.path.join(root, file)
             out_path = os.path.join(out_dir, file)
             if is_dicom(in_path):
                 shutil.copy2(in_path, out_path)
-                anonymize_file_with_id(out_path, out_path, id_number)
+                anonymize_file(out_path, out_path)
             else:
                 shutil.copy2(in_path, out_path)
 
@@ -114,6 +88,3 @@ if uploaded_file:
                 file_name="anonymized.zip",
                 mime="application/zip"
             )
-
-
-
